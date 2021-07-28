@@ -38,7 +38,7 @@ func SendEmail(subject, body string, emailInfo *EmailInfo) {
 		mes.SetHeader("Cc", emailInfo.CC...)
 	}
 	// 第三个参数为发件人别名，如"dcj"，可以为空（此时则为邮箱名称）
-	mes.SetAddressHeader("From", emailInfo.FromEmail, "dcj")
+	mes.SetAddressHeader("From", emailInfo.FromEmail, "切量配置")
 
 	//主题
 	mes.SetHeader("Subject", subject)

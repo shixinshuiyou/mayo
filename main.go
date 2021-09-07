@@ -1,9 +1,63 @@
 package main
 
 import (
-	"github.com/shixinshuiyou/mayo-dev/router"
+	"context"
+	"fmt"
+	"net/http"
+	"time"
+
+	"github.com/afex/hystrix-go/hystrix"
+	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/client"
+	"github.com/micro/go-micro/v2/registry"
+	"github.com/micro/go-plugins/registry/etcdv3/v2"
+	"github.com/micro/micro/v2/plugin"
 )
 
+func init() {
+	plugin.Register(plugin.NewPlugin(
+		plugin.WithName("auth"),
+		plugin.WithHandler(func(h http.Handler) http.Handler {
+			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				fmt.Println(r.URL.Path)
+			})
+		}),
+	))
+
+}
+
 func main() {
-	router.Register(8081)
+	service := micro.NewService(
+		micro.Name("czh.client.api"),
+		micro.Registry(etcdv3.NewRegistry(func(op *registry.Options) {
+			op.Addrs = []string{"127.0.0.1:2380"}
+		})),
+		micro.WrapClient(NewMyClientWrapper()),
+		micro.RegisterTTL(time.Second*30),
+		micro.RegisterInterval(time.Second*10),
+	)
+	service.Init()
+}
+
+//重新实现熔断方法
+type myWrapper struct {
+	client.Client
+}
+
+func (c *myWrapper) Call(ctx context.Context, req client.Request, rsp interface{}, opts ...client.CallOption) error {
+	name := req.Service() + "." + req.Endpoint()
+	return hystrix.Do(name, func() error {
+		return c.Client.Call(ctx, req, rsp, opts...)
+	}, func(e error) error {
+		//这里是处理服务降级的地方
+		fmt.Println("进入服务降级")
+		return nil
+	})
+}
+
+// NewClientWrapper returns a hystrix client Wrapper.
+func NewMyClientWrapper() client.Wrapper {
+	return func(c client.Client) client.Client {
+		return &myWrapper{c}
+	}
 }

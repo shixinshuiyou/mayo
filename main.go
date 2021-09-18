@@ -30,13 +30,15 @@ func main() {
 	service := micro.NewService(
 		micro.Name("czh.client.api"),
 		micro.Registry(etcdv3.NewRegistry(func(op *registry.Options) {
-			op.Addrs = []string{"127.0.0.1:2380"}
+
 		})),
 		micro.WrapClient(NewMyClientWrapper()),
 		micro.RegisterTTL(time.Second*30),
 		micro.RegisterInterval(time.Second*10),
+		micro.Address("127.0.0.1:9001"),
 	)
 	service.Init()
+	service.Run()
 }
 
 //重新实现熔断方法

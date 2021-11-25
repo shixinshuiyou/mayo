@@ -12,6 +12,7 @@ import (
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-plugins/registry/etcdv3/v2"
 	"github.com/micro/micro/v2/plugin"
+	"github.com/shixinshuiyou/framework/trace"
 )
 
 func init() {
@@ -24,9 +25,17 @@ func init() {
 		}),
 	))
 
+	plugin.Register(plugin.NewPlugin(
+		plugin.WithName("tracer"),
+		plugin.WithHandler(),
+	))
+
 }
 
 func main() {
+
+	trace.InitTracerJaeger("api_getaway")
+
 	service := micro.NewService(
 		micro.Name("czh.client.api"),
 		micro.Registry(etcdv3.NewRegistry(func(op *registry.Options) {

@@ -30,6 +30,7 @@ func CheckSessionMiddleware() gin.HandlerFunc {
 
 func initCube(r *gin.RouterGroup) {
 	r.GET("log", handler.UserLogin)
+	r.GET("test", handler.KuaiApitest)
 }
 
 // 跨域问题

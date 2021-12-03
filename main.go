@@ -14,7 +14,7 @@ import (
 
 func main() {
 	srvName := config.SrvApiGateAway
-	jaegerTracer, closer, _ := tracer.InitJaegerTracer(srvName, "1")
+	jaegerTracer, closer, _ := tracer.InitJaegerTracer(srvName, "127.0.0.1:6381")
 	// TODO 错误处理
 	defer closer.Close()
 
@@ -26,6 +26,6 @@ func main() {
 		micro.WrapHandler(opentracing.NewHandlerWrapper(jaegerTracer)),
 		micro.RegisterTTL(time.Second*30),
 		micro.RegisterInterval(time.Second*10),
-		micro.Address("127.0.0.1:9001"),
+		micro.Address("127.0.0.1:8086"),
 	)
 }

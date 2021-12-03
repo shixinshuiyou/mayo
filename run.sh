@@ -13,13 +13,36 @@ then
 else
     echo "now env is:${CONFIG_ENV}"
 
-    if [ "${CONFIG_ENV}" == "dev" ]
+    if [ "${CONFIG_ENV}" == "dev"]
     then
-        OUT_ADDR =  ":9001"
+        DOCKER_IMAGE="shixinshuiyou/mayo:dev"
+        ETCD_ADDR="host.docker.internal:2379"
     elif [ "${CONFIG_ENV}" == "test" ]
     then
-        echo "this env not complete"
-
+        DOCKER_IMAGE="shixinshuiyou/mayo:test"
+    elif [ "${CONFIG_ENV}" == "prod" ]
+    then
+        DOCKER_IMAGE="shixinshuiyou/mayo:prod"
     fi
 
-    sudo go run app/user/main.go -service_address=${OUT_ADDR}
+    echo "now set docker image is:${DOCKER_IMAGE}"
+
+    # 后台运行
+        sudo docker run \
+        --name shixinshuiyou-mayo-${CONFIG_ENV} \
+        -h shixinshuiyou-mayo-${CONFIG_ENV} \
+        -e TZ=Asia/Shanghai \
+        -e ETCD_ADDR=${ETCD_ADDR} \
+        -v `pwd`:/go/src/mayo \
+        -v `pwd`/docker/${CONFIG_ENV}/supervisord.d:/etc/supervisord.d \
+        --cap-add=SYS_PTRACE \
+        --security-opt \
+        seccomp=unconfined \
+        --security-opt \
+        apparmor=unconfined \
+        -d \
+        -p 8081-8090:8081-8090 \
+        ${DOCKER_IMAGE} \
+        supervisord -n && docker exec shixinshuiyou-mayo-${CONFIG_ENV} /bin/sh './docker_build.sh'
+
+fi

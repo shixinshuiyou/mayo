@@ -1,28 +1,28 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-micro/v2/web"
 	"github.com/micro/go-plugins/registry/etcdv3/v2"
 	"github.com/shixinshuiyou/mayo-dev/app/user/router"
+	"github.com/shixinshuiyou/mayo-dev/config"
 )
 
 func main() {
+	srvName := config.SrvActionName
 	reg := etcdv3.NewRegistry(func(op *registry.Options) {
 
 	})
 	service := web.NewService(
-		web.Name("czh.micro.api.action"),
-		web.Address("127.0.0.1:9000"),
+		web.Name(srvName),
+		web.Address(srvName),
 		web.Handler(router.Register()),
 		web.Registry(reg),
 	)
 
 	service.Init()
+	service.Run()
+	// if err := service.Run(); err != nil {
 
-	if err := service.Run(); err != nil {
-		fmt.Printf("error:%s", err)
-	}
+	// }
 }

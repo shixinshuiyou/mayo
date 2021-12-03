@@ -4,7 +4,7 @@ CONFIG_ENV = $1
 
 if [ ! -n "${CONFIG_ENV}" ]
 then
-    echo '请指定端口,当前环境,镜像名称'
+    echo '请指定当前环境'
     echo '例如：'
     echo '    sh run.sh dev'
     echo '    sh run.sh test'

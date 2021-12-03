@@ -1,0 +1,6 @@
+FROM r.addops.soft.360.cn/sycp-container/innovation.go-micro-inv.base:2020W31_1
+
+WORKDIR /go/src/adgit.src.corp.qihoo.net/innovation/go-micro-inv
+ENV QBUS_GO_SO_PATH "$GOPATH/src/adgit.src.corp.qihoo.net/innovation/go-micro-inv/mq/qbus"
+#ENV CGO_LDFLAGS "-L$QBUS_GO_SO_PATH -lQBus_go"
+ENV LD_LIBRARY_PATH=$QBUS_GO_SO_PATH

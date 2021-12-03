@@ -1,0 +1,22 @@
+FROM centos:7
+
+RUN rpm -ivh http://mirror.addops.soft.360.cn:8360/addops/7/os/x86_64/addops-release-7-4.el7.x86_64.rpm
+RUN yum clean all
+RUN yum install -y addops-libqbus
+RUN ln -s /usr/lib64/liblog4cplus-1.1.so.9 /usr/lib64/liblog4cplus-1.1.so.7
+RUN yum install -y vim git gcc supervisor
+RUN curl -O 'https://mirrors.ustc.edu.cn/golang/go1.13.linux-amd64.tar.gz' -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:69.0) Gecko/20100101 Firefox/69.0' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' -H 'Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2' --compressed -H 'Connection: keep-alive' -H 'Referer: https://mirrors.ustc.edu.cn/golang/' -H 'Upgrade-Insecure-Requests: 1' -H 'Pragma: no-cache' -H 'Cache-Control: no-cache' -H 'TE: Trailers'
+RUN tar -C /usr/local -xzf go1.13.linux-amd64.tar.gz
+RUN rm -f go1.13.linux-amd64.tar.gz
+RUN ln -s /usr/local/go/bin/go /usr/bin/go
+
+RUN go get -v -u github.com/derekparker/delve/cmd/dlv
+RUN yum install -y strace tcpdump telnet lsof
+
+RUN mkdir -p /go/src
+ENV GOPATH "/go"
+ENV GO111MODULE "on"
+ENV GOPROXY "https://goproxy.cn,direct"
+ENV GOFLAGS "-mod=vendor"
+ENV GOPRIVATE "adgit.src.corp.qihoo.net"
+ENV PATH $PATH:/root/go/bin

@@ -1,6 +1,6 @@
-module github.com/shixinshuiyou/mayo-dev
+module github.com/shixinshuiyou/mayo
 
-go 1.15
+go 1.14
 
 require (
 	github.com/gin-gonic/gin v1.7.7

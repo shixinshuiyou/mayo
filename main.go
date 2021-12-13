@@ -9,7 +9,7 @@ import (
 	"github.com/micro/go-plugins/wrapper/trace/opentracing/v2"
 	"github.com/micro/micro/v2/cmd"
 	"github.com/shixinshuiyou/framework/tracer"
-	"github.com/shixinshuiyou/mayo-dev/config"
+	"github.com/shixinshuiyou/mayo/config"
 )
 
 func main() {

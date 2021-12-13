@@ -1,6 +1,7 @@
 FROM centos:7
 
-RUN yum install -y vim git gcc supervisor
+RUN yum install -y epel-release
+RUN yum install -y supervisor
 RUN curl -O 'https://mirrors.ustc.edu.cn/golang/go1.13.linux-amd64.tar.gz'
 RUN tar -C /usr/local -xzf go1.13.linux-amd64.tar.gz
 RUN rm -f go1.13.linux-amd64.tar.gz

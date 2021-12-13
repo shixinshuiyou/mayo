@@ -645,8 +645,6 @@ github.com/serenize/snaker v0.0.0-20171204205717-a683aaf2d516 h1:ofR1ZdrNSkiWcMs
 github.com/serenize/snaker v0.0.0-20171204205717-a683aaf2d516/go.mod h1:Yow6lPLSAXx2ifx470yD/nUe22Dv5vBvxK/UK9UUTVs=
 github.com/sergi/go-diff v1.1.0 h1:we8PVUC3FE2uYfodKH/nBHMSetSfHDR6scGdBi+erh0=
 github.com/sergi/go-diff v1.1.0/go.mod h1:STckp+ISIX8hZLjrqAeVduY0gWCT9IjLuqbuNXdaHfM=
-github.com/shixinshuiyou/framework v0.0.0-20211201065036-2221e7e13004 h1:KNKl5+b82DkoRAWzLjsa+AyonxW6lufGZUrpmCUL+7s=
-github.com/shixinshuiyou/framework v0.0.0-20211201065036-2221e7e13004/go.mod h1:w/J/xDq3CS0AnJzX8/R5XR5jSRIXbiSAG7gjPYpdQV8=
 github.com/shixinshuiyou/framework v0.0.0-20211203022543-61a68e71dad9 h1:XJlLIo8K1OjfoRw8jFvqzyRs8rBjg39MeuQIaC98gJM=
 github.com/shixinshuiyou/framework v0.0.0-20211203022543-61a68e71dad9/go.mod h1:Qq+aQUOpNtLBz/g2+aF0GYMCA9NEvgbETw3d6n5QTJQ=
 github.com/shurcooL/sanitized_anchor_name v1.0.0 h1:PdmoCO6wvbs+7yrJyMORt4/BmY5IYyJwS/kOiWx8mHo=

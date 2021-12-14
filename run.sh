@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-CONFIG_ENV = $1
+CONFIG_ENV=$1
 
 if [ ! -n "${CONFIG_ENV}" ]
 then
     echo '请指定当前环境'
-    echo '例如：'
+    echo '例如:'
     echo '    sh run.sh dev'
     echo '    sh run.sh test'
     echo '    sh run.sh prod'
@@ -13,7 +13,7 @@ then
 else
     echo "now env is:${CONFIG_ENV}"
 
-    if [ "${CONFIG_ENV}" == "dev"]
+    if [ "${CONFIG_ENV}" == "dev" ]
     then
         DOCKER_IMAGE="shixinshuiyou/mayo:dev"
         ETCD_ADDR="host.docker.internal:2379"
@@ -41,8 +41,8 @@ else
         --security-opt \
         apparmor=unconfined \
         -d \
-        -p 9081-8090:9081-9090 \
+        -p 9081-9090:9081-9090 \
         ${DOCKER_IMAGE} \
-        supervisord -n && docker exec shixinshuiyou-mayo-${CONFIG_ENV} /bin/sh './docker_build.sh'
+        supervisord -n && docker exec shixinshuiyou-mayo-${CONFIG_ENV} /bin/bash './docker_build.sh'
 
 fi

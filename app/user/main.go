@@ -17,7 +17,6 @@ func main() {
 	})
 	service := web.NewService(
 		web.Name(srvName),
-		web.Address(srvName),
 		web.Handler(router.Register()),
 		web.Registry(reg),
 	)

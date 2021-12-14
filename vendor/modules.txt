@@ -34,7 +34,7 @@ github.com/cenkalti/backoff/v4
 github.com/cheekybits/genny/generic
 # github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e
 github.com/chzyer/readline
-# github.com/cloudflare/cloudflare-go v0.14.0
+# github.com/cloudflare/cloudflare-go v0.14.0 => github.com/cloudflare/cloudflare-go v0.10.2
 github.com/cloudflare/cloudflare-go
 # github.com/coreos/etcd v3.3.18+incompatible
 github.com/coreos/etcd/auth/authpb
@@ -539,7 +539,7 @@ github.com/nlopes/slack
 github.com/nlopes/slack/internal/errorsx
 github.com/nlopes/slack/internal/timex
 github.com/nlopes/slack/slackutilsx
-# github.com/olekukonko/tablewriter v0.0.5
+# github.com/olekukonko/tablewriter v0.0.4
 github.com/olekukonko/tablewriter
 # github.com/opentracing/opentracing-go v1.2.0
 github.com/opentracing/opentracing-go
@@ -818,4 +818,5 @@ honnef.co/go/tools/staticcheck
 honnef.co/go/tools/stylecheck
 honnef.co/go/tools/unused
 honnef.co/go/tools/version
+# github.com/cloudflare/cloudflare-go => github.com/cloudflare/cloudflare-go v0.10.2
 # google.golang.org/grpc => google.golang.org/grpc v1.26.0

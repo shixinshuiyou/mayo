@@ -15,4 +15,7 @@ require (
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect
 )
 
-replace google.golang.org/grpc => google.golang.org/grpc v1.26.0
+replace (
+	github.com/cloudflare/cloudflare-go => github.com/cloudflare/cloudflare-go v0.10.2
+	google.golang.org/grpc => google.golang.org/grpc v1.26.0
+)

@@ -41,7 +41,7 @@ else
         --security-opt \
         apparmor=unconfined \
         -d \
-        -p 8081-8090:8081-8090 \
+        -p 9081-8090:9081-9090 \
         ${DOCKER_IMAGE} \
         supervisord -n && docker exec shixinshuiyou-mayo-${CONFIG_ENV} /bin/sh './docker_build.sh'
 

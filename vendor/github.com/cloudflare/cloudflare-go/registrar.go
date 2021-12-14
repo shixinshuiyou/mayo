@@ -1,10 +1,8 @@
 package cloudflare
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"time"
 
 	"github.com/pkg/errors"
@@ -82,12 +80,12 @@ type RegistrarDomainsDetailResponse struct {
 // domain name.
 //
 // API reference: https://api.cloudflare.com/#registrar-domains-get-domain
-func (api *API) RegistrarDomain(ctx context.Context, accountID, domainName string) (RegistrarDomain, error) {
+func (api *API) RegistrarDomain(accountID, domainName string) (RegistrarDomain, error) {
 	uri := fmt.Sprintf("/accounts/%s/registrar/domains/%s", accountID, domainName)
 
-	res, err := api.makeRequestContext(ctx, http.MethodGet, uri, nil)
+	res, err := api.makeRequest("GET", uri, nil)
 	if err != nil {
-		return RegistrarDomain{}, err
+		return RegistrarDomain{}, errors.Wrap(err, errMakeRequestError)
 	}
 
 	var r RegistrarDomainDetailResponse
@@ -102,12 +100,12 @@ func (api *API) RegistrarDomain(ctx context.Context, accountID, domainName strin
 // ID.
 //
 // API reference: https://api.cloudflare.com/#registrar-domains-list-domains
-func (api *API) RegistrarDomains(ctx context.Context, accountID string) ([]RegistrarDomain, error) {
+func (api *API) RegistrarDomains(accountID string) ([]RegistrarDomain, error) {
 	uri := "/accounts/" + accountID + "/registrar/domains"
 
-	res, err := api.makeRequestContext(ctx, http.MethodPost, uri, nil)
+	res, err := api.makeRequest("POST", uri, nil)
 	if err != nil {
-		return []RegistrarDomain{}, err
+		return []RegistrarDomain{}, errors.Wrap(err, errMakeRequestError)
 	}
 
 	var r RegistrarDomainsDetailResponse
@@ -122,12 +120,12 @@ func (api *API) RegistrarDomains(ctx context.Context, accountID string) ([]Regis
 // to Cloudflare Registrar.
 //
 // API reference: https://api.cloudflare.com/#registrar-domains-transfer-domain
-func (api *API) TransferRegistrarDomain(ctx context.Context, accountID, domainName string) ([]RegistrarDomain, error) {
+func (api *API) TransferRegistrarDomain(accountID, domainName string) ([]RegistrarDomain, error) {
 	uri := fmt.Sprintf("/accounts/%s/registrar/domains/%s/transfer", accountID, domainName)
 
-	res, err := api.makeRequestContext(ctx, http.MethodPost, uri, nil)
+	res, err := api.makeRequest("POST", uri, nil)
 	if err != nil {
-		return []RegistrarDomain{}, err
+		return []RegistrarDomain{}, errors.Wrap(err, errMakeRequestError)
 	}
 
 	var r RegistrarDomainsDetailResponse
@@ -141,12 +139,12 @@ func (api *API) TransferRegistrarDomain(ctx context.Context, accountID, domainNa
 // CancelRegistrarDomainTransfer cancels a pending domain transfer.
 //
 // API reference: https://api.cloudflare.com/#registrar-domains-cancel-transfer
-func (api *API) CancelRegistrarDomainTransfer(ctx context.Context, accountID, domainName string) ([]RegistrarDomain, error) {
+func (api *API) CancelRegistrarDomainTransfer(accountID, domainName string) ([]RegistrarDomain, error) {
 	uri := fmt.Sprintf("/accounts/%s/registrar/domains/%s/cancel_transfer", accountID, domainName)
 
-	res, err := api.makeRequestContext(ctx, http.MethodPost, uri, nil)
+	res, err := api.makeRequest("POST", uri, nil)
 	if err != nil {
-		return []RegistrarDomain{}, err
+		return []RegistrarDomain{}, errors.Wrap(err, errMakeRequestError)
 	}
 
 	var r RegistrarDomainsDetailResponse
@@ -160,12 +158,12 @@ func (api *API) CancelRegistrarDomainTransfer(ctx context.Context, accountID, do
 // UpdateRegistrarDomain updates an existing Registrar Domain configuration.
 //
 // API reference: https://api.cloudflare.com/#registrar-domains-update-domain
-func (api *API) UpdateRegistrarDomain(ctx context.Context, accountID, domainName string, domainConfiguration RegistrarDomainConfiguration) (RegistrarDomain, error) {
+func (api *API) UpdateRegistrarDomain(accountID, domainName string, domainConfiguration RegistrarDomainConfiguration) (RegistrarDomain, error) {
 	uri := fmt.Sprintf("/accounts/%s/registrar/domains/%s", accountID, domainName)
 
-	res, err := api.makeRequestContext(ctx, http.MethodPut, uri, domainConfiguration)
+	res, err := api.makeRequest("PUT", uri, domainConfiguration)
 	if err != nil {
-		return RegistrarDomain{}, err
+		return RegistrarDomain{}, errors.Wrap(err, errMakeRequestError)
 	}
 
 	var r RegistrarDomainDetailResponse

@@ -21,11 +21,11 @@ func main() {
 	cmd.Init(
 		micro.Name(srvName),
 		micro.Registry(etcdv3.NewRegistry(func(op *registry.Options) {
-
+			op.Addrs = []string{"127.0.0.1:2376"}
 		})),
 		micro.WrapHandler(opentracing.NewHandlerWrapper(jaegerTracer)),
 		micro.RegisterTTL(time.Second*30),
 		micro.RegisterInterval(time.Second*10),
-		micro.Address("127.0.0.1:8086"),
 	)
+
 }

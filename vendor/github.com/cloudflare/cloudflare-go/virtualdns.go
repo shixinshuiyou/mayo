@@ -1,9 +1,7 @@
 package cloudflare
 
 import (
-	"context"
 	"encoding/json"
-	"net/http"
 	"net/url"
 	"strings"
 	"time"
@@ -23,7 +21,7 @@ type VirtualDNS struct {
 	ModifiedOn           string   `json:"modified_on"`
 }
 
-// VirtualDNSAnalyticsMetrics represents a group of aggregated Virtual DNS metrics.
+// VirtualDNSAnalyticsMetrics respresents a group of aggregated Virtual DNS metrics.
 type VirtualDNSAnalyticsMetrics struct {
 	QueryCount         *int64   `json:"queryCount"`
 	UncachedCount      *int64   `json:"uncachedCount"`
@@ -70,10 +68,10 @@ type VirtualDNSAnalyticsResponse struct {
 // CreateVirtualDNS creates a new Virtual DNS cluster.
 //
 // API reference: https://api.cloudflare.com/#virtual-dns-users--create-a-virtual-dns-cluster
-func (api *API) CreateVirtualDNS(ctx context.Context, v *VirtualDNS) (*VirtualDNS, error) {
-	res, err := api.makeRequestContext(ctx, http.MethodPost, "/user/virtual_dns", v)
+func (api *API) CreateVirtualDNS(v *VirtualDNS) (*VirtualDNS, error) {
+	res, err := api.makeRequest("POST", "/user/virtual_dns", v)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, errMakeRequestError)
 	}
 
 	response := &VirtualDNSResponse{}
@@ -88,11 +86,11 @@ func (api *API) CreateVirtualDNS(ctx context.Context, v *VirtualDNS) (*VirtualDN
 // VirtualDNS fetches a single virtual DNS cluster.
 //
 // API reference: https://api.cloudflare.com/#virtual-dns-users--get-a-virtual-dns-cluster
-func (api *API) VirtualDNS(ctx context.Context, virtualDNSID string) (*VirtualDNS, error) {
+func (api *API) VirtualDNS(virtualDNSID string) (*VirtualDNS, error) {
 	uri := "/user/virtual_dns/" + virtualDNSID
-	res, err := api.makeRequestContext(ctx, http.MethodGet, uri, nil)
+	res, err := api.makeRequest("GET", uri, nil)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, errMakeRequestError)
 	}
 
 	response := &VirtualDNSResponse{}
@@ -107,10 +105,10 @@ func (api *API) VirtualDNS(ctx context.Context, virtualDNSID string) (*VirtualDN
 // ListVirtualDNS lists the virtual DNS clusters associated with an account.
 //
 // API reference: https://api.cloudflare.com/#virtual-dns-users--get-virtual-dns-clusters
-func (api *API) ListVirtualDNS(ctx context.Context) ([]*VirtualDNS, error) {
-	res, err := api.makeRequestContext(ctx, http.MethodGet, "/user/virtual_dns", nil)
+func (api *API) ListVirtualDNS() ([]*VirtualDNS, error) {
+	res, err := api.makeRequest("GET", "/user/virtual_dns", nil)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, errMakeRequestError)
 	}
 
 	response := &VirtualDNSListResponse{}
@@ -125,11 +123,11 @@ func (api *API) ListVirtualDNS(ctx context.Context) ([]*VirtualDNS, error) {
 // UpdateVirtualDNS updates a Virtual DNS cluster.
 //
 // API reference: https://api.cloudflare.com/#virtual-dns-users--modify-a-virtual-dns-cluster
-func (api *API) UpdateVirtualDNS(ctx context.Context, virtualDNSID string, vv VirtualDNS) error {
+func (api *API) UpdateVirtualDNS(virtualDNSID string, vv VirtualDNS) error {
 	uri := "/user/virtual_dns/" + virtualDNSID
-	res, err := api.makeRequestContext(ctx, http.MethodPut, uri, vv)
+	res, err := api.makeRequest("PUT", uri, vv)
 	if err != nil {
-		return err
+		return errors.Wrap(err, errMakeRequestError)
 	}
 
 	response := &VirtualDNSResponse{}
@@ -145,11 +143,11 @@ func (api *API) UpdateVirtualDNS(ctx context.Context, virtualDNSID string, vv Vi
 // undone, and will stop all traffic to that cluster.
 //
 // API reference: https://api.cloudflare.com/#virtual-dns-users--delete-a-virtual-dns-cluster
-func (api *API) DeleteVirtualDNS(ctx context.Context, virtualDNSID string) error {
+func (api *API) DeleteVirtualDNS(virtualDNSID string) error {
 	uri := "/user/virtual_dns/" + virtualDNSID
-	res, err := api.makeRequestContext(ctx, http.MethodDelete, uri, nil)
+	res, err := api.makeRequest("DELETE", uri, nil)
 	if err != nil {
-		return err
+		return errors.Wrap(err, errMakeRequestError)
 	}
 
 	response := &VirtualDNSResponse{}
@@ -177,11 +175,11 @@ func (o VirtualDNSUserAnalyticsOptions) encode() string {
 }
 
 // VirtualDNSUserAnalytics retrieves analytics report for a specified dimension and time range
-func (api *API) VirtualDNSUserAnalytics(ctx context.Context, virtualDNSID string, o VirtualDNSUserAnalyticsOptions) (VirtualDNSAnalytics, error) {
+func (api *API) VirtualDNSUserAnalytics(virtualDNSID string, o VirtualDNSUserAnalyticsOptions) (VirtualDNSAnalytics, error) {
 	uri := "/user/virtual_dns/" + virtualDNSID + "/dns_analytics/report?" + o.encode()
-	res, err := api.makeRequestContext(ctx, http.MethodGet, uri, nil)
+	res, err := api.makeRequest("GET", uri, nil)
 	if err != nil {
-		return VirtualDNSAnalytics{}, err
+		return VirtualDNSAnalytics{}, errors.Wrap(err, errMakeRequestError)
 	}
 
 	response := VirtualDNSAnalyticsResponse{}

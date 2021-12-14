@@ -138,7 +138,7 @@ func (api *API) SetAuthType(authType int) {
 // ZoneIDByName retrieves a zone's ID from the name.
 func (api *API) ZoneIDByName(zoneName string) (string, error) {
 	zoneName = normalizeZoneName(zoneName)
-	res, err := api.ListZonesContext(context.Background(), WithZoneFilters(zoneName, "", ""))
+	res, err := api.ListZonesContext(context.TODO(), WithZoneFilter(zoneName))
 	if err != nil {
 		return "", errors.Wrap(err, "ListZonesContext command failed")
 	}
@@ -165,19 +165,15 @@ func (api *API) ZoneIDByName(zoneName string) (string, error) {
 // makeRequest makes a HTTP request and returns the body as a byte slice,
 // closing it before returning. params will be serialized to JSON.
 func (api *API) makeRequest(method, uri string, params interface{}) ([]byte, error) {
-	return api.makeRequestWithAuthType(context.Background(), method, uri, params, api.authType)
+	return api.makeRequestWithAuthType(context.TODO(), method, uri, params, api.authType)
 }
 
 func (api *API) makeRequestContext(ctx context.Context, method, uri string, params interface{}) ([]byte, error) {
 	return api.makeRequestWithAuthType(ctx, method, uri, params, api.authType)
 }
 
-func (api *API) makeRequestContextWithHeaders(ctx context.Context, method, uri string, params interface{}, headers http.Header) ([]byte, error) {
-	return api.makeRequestWithAuthTypeAndHeaders(ctx, method, uri, params, api.authType, headers)
-}
-
 func (api *API) makeRequestWithHeaders(method, uri string, params interface{}, headers http.Header) ([]byte, error) {
-	return api.makeRequestWithAuthTypeAndHeaders(context.Background(), method, uri, params, api.authType, headers)
+	return api.makeRequestWithAuthTypeAndHeaders(context.TODO(), method, uri, params, api.authType, headers)
 }
 
 func (api *API) makeRequestWithAuthType(ctx context.Context, method, uri string, params interface{}, authType int) ([]byte, error) {
@@ -224,7 +220,7 @@ func (api *API) makeRequestWithAuthTypeAndHeaders(ctx context.Context, method, u
 			time.Sleep(sleepDuration)
 
 		}
-		err = api.rateLimiter.Wait(context.Background())
+		err = api.rateLimiter.Wait(context.TODO())
 		if err != nil {
 			return nil, errors.Wrap(err, "Error caused by request rate limiting")
 		}
@@ -260,25 +256,30 @@ func (api *API) makeRequestWithAuthTypeAndHeaders(ctx context.Context, method, u
 		return nil, respErr
 	}
 
-	if resp.StatusCode >= http.StatusBadRequest {
-		if strings.HasSuffix(resp.Request.URL.Path, "/filters/validate-expr") {
-			return nil, errors.Errorf("%s", respBody)
+	switch {
+	case resp.StatusCode >= http.StatusOK && resp.StatusCode < http.StatusMultipleChoices:
+	case resp.StatusCode == http.StatusUnauthorized:
+		return nil, errors.Errorf("HTTP status %d: invalid credentials", resp.StatusCode)
+	case resp.StatusCode == http.StatusForbidden:
+		return nil, errors.Errorf("HTTP status %d: insufficient permissions", resp.StatusCode)
+	case resp.StatusCode == http.StatusServiceUnavailable,
+		resp.StatusCode == http.StatusBadGateway,
+		resp.StatusCode == http.StatusGatewayTimeout,
+		resp.StatusCode == 522,
+		resp.StatusCode == 523,
+		resp.StatusCode == 524:
+		return nil, errors.Errorf("HTTP status %d: service failure", resp.StatusCode)
+	// This isn't a great solution due to the way the `default` case is
+	// a catch all and that the `filters/validate-expr` returns a HTTP 400
+	// yet the clients need to use the HTTP body as a JSON string.
+	case resp.StatusCode == 400 && strings.HasSuffix(resp.Request.URL.Path, "/filters/validate-expr"):
+		return nil, errors.Errorf("%s", respBody)
+	default:
+		var s string
+		if respBody != nil {
+			s = string(respBody)
 		}
-
-		if resp.StatusCode > http.StatusInternalServerError {
-			return nil, errors.Errorf("HTTP status %d: service failure", resp.StatusCode)
-		}
-
-		errBody := &Response{}
-		err = json.Unmarshal(respBody, &errBody)
-		if err != nil {
-			return nil, errors.Wrap(err, errUnmarshalErrorBody)
-		}
-
-		return nil, &APIRequestError{
-			StatusCode: resp.StatusCode,
-			Errors:     errBody.Errors,
-		}
+		return nil, errors.Errorf("HTTP status %d: content %q", resp.StatusCode, s)
 	}
 
 	return respBody, nil
@@ -288,10 +289,11 @@ func (api *API) makeRequestWithAuthTypeAndHeaders(ctx context.Context, method, u
 // *http.Response, or an error if one occurred. The caller is responsible for
 // closing the response body.
 func (api *API) request(ctx context.Context, method, uri string, reqBody io.Reader, authType int, headers http.Header) (*http.Response, error) {
-	req, err := http.NewRequestWithContext(ctx, method, api.BaseURL+uri, reqBody)
+	req, err := http.NewRequest(method, api.BaseURL+uri, reqBody)
 	if err != nil {
 		return nil, errors.Wrap(err, "HTTP request creation failed")
 	}
+	req.WithContext(ctx)
 
 	combinedHeaders := make(http.Header)
 	copyHeader(combinedHeaders, api.headers)
@@ -361,21 +363,13 @@ type Response struct {
 	Messages []ResponseInfo `json:"messages"`
 }
 
-// ResultInfoCursors contains information about cursors.
-type ResultInfoCursors struct {
-	Before string `json:"before"`
-	After  string `json:"after"`
-}
-
 // ResultInfo contains metadata about the Response.
 type ResultInfo struct {
-	Page       int               `json:"page"`
-	PerPage    int               `json:"per_page"`
-	TotalPages int               `json:"total_pages"`
-	Count      int               `json:"count"`
-	Total      int               `json:"total_count"`
-	Cursor     string            `json:"cursor"`
-	Cursors    ResultInfoCursors `json:"cursors"`
+	Page       int `json:"page"`
+	PerPage    int `json:"per_page"`
+	TotalPages int `json:"total_pages"`
+	Count      int `json:"count"`
+	Total      int `json:"total_count"`
 }
 
 // RawResponse keeps the result as JSON form
@@ -389,7 +383,7 @@ type RawResponse struct {
 func (api *API) Raw(method, endpoint string, data interface{}) (json.RawMessage, error) {
 	res, err := api.makeRequest(method, endpoint, data)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, errMakeRequestError)
 	}
 
 	var r RawResponse
@@ -426,20 +420,10 @@ type reqOption struct {
 	params url.Values
 }
 
-// WithZoneFilters applies a filter based on zone properties.
-func WithZoneFilters(zoneName, accountID, status string) ReqOption {
+// WithZoneFilter applies a filter based on zone name.
+func WithZoneFilter(zone string) ReqOption {
 	return func(opt *reqOption) {
-		if zoneName != "" {
-			opt.params.Set("name", normalizeZoneName(zoneName))
-		}
-
-		if accountID != "" {
-			opt.params.Set("account.id", accountID)
-		}
-
-		if status != "" {
-			opt.params.Set("status", status)
-		}
+		opt.params.Set("name", normalizeZoneName(zone))
 	}
 }
 

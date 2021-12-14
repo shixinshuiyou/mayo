@@ -14,14 +14,14 @@ import (
 
 func main() {
 	srvName := config.SrvApiGateAway
-	jaegerTracer, closer, _ := tracer.InitJaegerTracer(srvName, "127.0.0.1:6381")
+	jaegerTracer, closer, _ := tracer.InitJaegerTracer(srvName, "127.0.0.1:6831")
 	// TODO 错误处理
 	defer closer.Close()
 
 	cmd.Init(
 		micro.Name(srvName),
 		micro.Registry(etcdv3.NewRegistry(func(op *registry.Options) {
-			op.Addrs = []string{"127.0.0.1:2376"}
+			op.Addrs = []string{"127.0.0.1:2380"}
 		})),
 		micro.WrapHandler(opentracing.NewHandlerWrapper(jaegerTracer)),
 		micro.RegisterTTL(time.Second*30),

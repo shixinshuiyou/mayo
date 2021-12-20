@@ -154,21 +154,12 @@ func (t *Transport) pingTimeout() time.Duration {
 
 // ConfigureTransport configures a net/http HTTP/1 Transport to use HTTP/2.
 // It returns an error if t1 has already been HTTP/2-enabled.
-//
-// Use ConfigureTransports instead to configure the HTTP/2 Transport.
 func ConfigureTransport(t1 *http.Transport) error {
-	_, err := ConfigureTransports(t1)
+	_, err := configureTransport(t1)
 	return err
 }
 
-// ConfigureTransports configures a net/http HTTP/1 Transport to use HTTP/2.
-// It returns a new HTTP/2 Transport for further configuration.
-// It returns an error if t1 has already been HTTP/2-enabled.
-func ConfigureTransports(t1 *http.Transport) (*Transport, error) {
-	return configureTransports(t1)
-}
-
-func configureTransports(t1 *http.Transport) (*Transport, error) {
+func configureTransport(t1 *http.Transport) (*Transport, error) {
 	connPool := new(clientConnPool)
 	t2 := &Transport{
 		ConnPool: noDialClientConnPool{connPool},
@@ -564,12 +555,12 @@ func canRetryError(err error) bool {
 	return false
 }
 
-func (t *Transport) dialClientConn(ctx context.Context, addr string, singleUse bool) (*ClientConn, error) {
+func (t *Transport) dialClientConn(addr string, singleUse bool) (*ClientConn, error) {
 	host, _, err := net.SplitHostPort(addr)
 	if err != nil {
 		return nil, err
 	}
-	tconn, err := t.dialTLS(ctx)("tcp", addr, t.newTLSConfig(host))
+	tconn, err := t.dialTLS()("tcp", addr, t.newTLSConfig(host))
 	if err != nil {
 		return nil, err
 	}
@@ -590,24 +581,34 @@ func (t *Transport) newTLSConfig(host string) *tls.Config {
 	return cfg
 }
 
-func (t *Transport) dialTLS(ctx context.Context) func(string, string, *tls.Config) (net.Conn, error) {
+func (t *Transport) dialTLS() func(string, string, *tls.Config) (net.Conn, error) {
 	if t.DialTLS != nil {
 		return t.DialTLS
 	}
-	return func(network, addr string, cfg *tls.Config) (net.Conn, error) {
-		tlsCn, err := t.dialTLSWithContext(ctx, network, addr, cfg)
-		if err != nil {
+	return t.dialTLSDefault
+}
+
+func (t *Transport) dialTLSDefault(network, addr string, cfg *tls.Config) (net.Conn, error) {
+	cn, err := tls.Dial(network, addr, cfg)
+	if err != nil {
+		return nil, err
+	}
+	if err := cn.Handshake(); err != nil {
+		return nil, err
+	}
+	if !cfg.InsecureSkipVerify {
+		if err := cn.VerifyHostname(cfg.ServerName); err != nil {
 			return nil, err
 		}
-		state := tlsCn.ConnectionState()
-		if p := state.NegotiatedProtocol; p != NextProtoTLS {
-			return nil, fmt.Errorf("http2: unexpected ALPN protocol %q; want %q", p, NextProtoTLS)
-		}
-		if !state.NegotiatedProtocolIsMutual {
-			return nil, errors.New("http2: could not negotiate protocol mutually")
-		}
-		return tlsCn, nil
 	}
+	state := cn.ConnectionState()
+	if p := state.NegotiatedProtocol; p != NextProtoTLS {
+		return nil, fmt.Errorf("http2: unexpected ALPN protocol %q; want %q", p, NextProtoTLS)
+	}
+	if !state.NegotiatedProtocolIsMutual {
+		return nil, errors.New("http2: could not negotiate protocol mutually")
+	}
+	return cn, nil
 }
 
 // disableKeepAlives reports whether connections should be closed as
@@ -688,7 +689,6 @@ func (t *Transport) newClientConn(c net.Conn, singleUse bool) (*ClientConn, erro
 	cc.inflow.add(transportDefaultConnFlow + initialWindowSize)
 	cc.bw.Flush()
 	if cc.werr != nil {
-		cc.Close()
 		return nil, cc.werr
 	}
 
@@ -995,7 +995,7 @@ func checkConnHeaders(req *http.Request) error {
 	if vv := req.Header["Transfer-Encoding"]; len(vv) > 0 && (len(vv) > 1 || vv[0] != "" && vv[0] != "chunked") {
 		return fmt.Errorf("http2: invalid Transfer-Encoding request header: %q", vv)
 	}
-	if vv := req.Header["Connection"]; len(vv) > 0 && (len(vv) > 1 || vv[0] != "" && !asciiEqualFold(vv[0], "close") && !asciiEqualFold(vv[0], "keep-alive")) {
+	if vv := req.Header["Connection"]; len(vv) > 0 && (len(vv) > 1 || vv[0] != "" && !strings.EqualFold(vv[0], "close") && !strings.EqualFold(vv[0], "keep-alive")) {
 		return fmt.Errorf("http2: invalid Connection request header: %q", vv)
 	}
 	return nil
@@ -1080,15 +1080,6 @@ func (cc *ClientConn) roundTrip(req *http.Request) (res *http.Response, gotErrAf
 	bodyWriter := cc.t.getBodyWriterState(cs, body)
 	cs.on100 = bodyWriter.on100
 
-	defer func() {
-		cc.wmu.Lock()
-		werr := cc.werr
-		cc.wmu.Unlock()
-		if werr != nil {
-			cc.Close()
-		}
-	}()
-
 	cc.wmu.Lock()
 	endStream := !hasBody && !hasTrailers
 	werr := cc.writeHeaders(cs.ID, endStream, int(cc.maxFrameSize), hdrs)
@@ -1138,9 +1129,6 @@ func (cc *ClientConn) roundTrip(req *http.Request) (res *http.Response, gotErrAf
 			// we can keep it.
 			bodyWriter.cancel()
 			cs.abortRequestBodyWrite(errStopReqBodyWrite)
-			if hasBody && !bodyWritten {
-				<-bodyWriter.resc
-			}
 		}
 		if re.err != nil {
 			cc.forgetStreamID(cs.ID)
@@ -1161,7 +1149,6 @@ func (cc *ClientConn) roundTrip(req *http.Request) (res *http.Response, gotErrAf
 			} else {
 				bodyWriter.cancel()
 				cs.abortRequestBodyWrite(errStopReqBodyWriteAndCancel)
-				<-bodyWriter.resc
 			}
 			cc.forgetStreamID(cs.ID)
 			return nil, cs.getStartedWrite(), errTimeout
@@ -1171,7 +1158,6 @@ func (cc *ClientConn) roundTrip(req *http.Request) (res *http.Response, gotErrAf
 			} else {
 				bodyWriter.cancel()
 				cs.abortRequestBodyWrite(errStopReqBodyWriteAndCancel)
-				<-bodyWriter.resc
 			}
 			cc.forgetStreamID(cs.ID)
 			return nil, cs.getStartedWrite(), ctx.Err()
@@ -1181,7 +1167,6 @@ func (cc *ClientConn) roundTrip(req *http.Request) (res *http.Response, gotErrAf
 			} else {
 				bodyWriter.cancel()
 				cs.abortRequestBodyWrite(errStopReqBodyWriteAndCancel)
-				<-bodyWriter.resc
 			}
 			cc.forgetStreamID(cs.ID)
 			return nil, cs.getStartedWrite(), errRequestCanceled
@@ -1191,7 +1176,6 @@ func (cc *ClientConn) roundTrip(req *http.Request) (res *http.Response, gotErrAf
 			// forgetStreamID.
 			return nil, cs.getStartedWrite(), cs.resetErr
 		case err := <-bodyWriter.resc:
-			bodyWritten = true
 			// Prefer the read loop's response, if available. Issue 16102.
 			select {
 			case re := <-readLoopResCh:
@@ -1202,6 +1186,7 @@ func (cc *ClientConn) roundTrip(req *http.Request) (res *http.Response, gotErrAf
 				cc.forgetStreamID(cs.ID)
 				return nil, cs.getStartedWrite(), err
 			}
+			bodyWritten = true
 			if d := cc.responseHeaderTimeout(); d != 0 {
 				timer := time.NewTimer(d)
 				defer timer.Stop()
@@ -1521,21 +1506,19 @@ func (cc *ClientConn) encodeHeaders(req *http.Request, addGzipHeader bool, trail
 
 		var didUA bool
 		for k, vv := range req.Header {
-			if asciiEqualFold(k, "host") || asciiEqualFold(k, "content-length") {
+			if strings.EqualFold(k, "host") || strings.EqualFold(k, "content-length") {
 				// Host is :authority, already sent.
 				// Content-Length is automatic, set below.
 				continue
-			} else if asciiEqualFold(k, "connection") ||
-				asciiEqualFold(k, "proxy-connection") ||
-				asciiEqualFold(k, "transfer-encoding") ||
-				asciiEqualFold(k, "upgrade") ||
-				asciiEqualFold(k, "keep-alive") {
+			} else if strings.EqualFold(k, "connection") || strings.EqualFold(k, "proxy-connection") ||
+				strings.EqualFold(k, "transfer-encoding") || strings.EqualFold(k, "upgrade") ||
+				strings.EqualFold(k, "keep-alive") {
 				// Per 8.1.2.2 Connection-Specific Header
 				// Fields, don't send connection-specific
 				// fields. We have already checked if any
 				// are error-worthy so just ignore the rest.
 				continue
-			} else if asciiEqualFold(k, "user-agent") {
+			} else if strings.EqualFold(k, "user-agent") {
 				// Match Go's http1 behavior: at most one
 				// User-Agent. If set to nil or empty string,
 				// then omit it. Otherwise if not mentioned,
@@ -1548,7 +1531,7 @@ func (cc *ClientConn) encodeHeaders(req *http.Request, addGzipHeader bool, trail
 				if vv[0] == "" {
 					continue
 				}
-			} else if asciiEqualFold(k, "cookie") {
+			} else if strings.EqualFold(k, "cookie") {
 				// Per 8.1.2.5 To allow for better compression efficiency, the
 				// Cookie header field MAY be split into separate header fields,
 				// each with one or more cookie-pairs.
@@ -1607,12 +1590,7 @@ func (cc *ClientConn) encodeHeaders(req *http.Request, addGzipHeader bool, trail
 
 	// Header list size is ok. Write the headers.
 	enumerateHeaders(func(name, value string) {
-		name, ascii := asciiToLower(name)
-		if !ascii {
-			// Skip writing invalid headers. Per RFC 7540, Section 8.1.2, header
-			// field names have to be ASCII characters (just as in HTTP/1.x).
-			return
-		}
+		name = strings.ToLower(name)
 		cc.writeHeader(name, value)
 		if traceHeaders {
 			traceWroteHeaderField(trace, name, value)
@@ -1660,14 +1638,9 @@ func (cc *ClientConn) encodeTrailers(req *http.Request) ([]byte, error) {
 	}
 
 	for k, vv := range req.Trailer {
-		lowKey, ascii := asciiToLower(k)
-		if !ascii {
-			// Skip writing invalid headers. Per RFC 7540, Section 8.1.2, header
-			// field names have to be ASCII characters (just as in HTTP/1.x).
-			continue
-		}
 		// Transfer-Encoding, etc.. have already been filtered at the
 		// start of RoundTrip
+		lowKey := strings.ToLower(k)
 		for _, v := range vv {
 			cc.writeHeader(lowKey, v)
 		}
@@ -2033,8 +2006,8 @@ func (rl *clientConnReadLoop) handleResponse(cs *clientStream, f *MetaHeadersFra
 	if !streamEnded || isHead {
 		res.ContentLength = -1
 		if clens := res.Header["Content-Length"]; len(clens) == 1 {
-			if cl, err := strconv.ParseUint(clens[0], 10, 63); err == nil {
-				res.ContentLength = int64(cl)
+			if clen64, err := strconv.ParseInt(clens[0], 10, 64); err == nil {
+				res.ContentLength = clen64
 			} else {
 				// TODO: care? unlike http/1, it won't mess up our framing, so it's
 				// more safe smuggling-wise to ignore.
@@ -2552,7 +2525,6 @@ func strSliceContains(ss []string, s string) bool {
 
 type erringRoundTripper struct{ err error }
 
-func (rt erringRoundTripper) RoundTripErr() error                             { return rt.err }
 func (rt erringRoundTripper) RoundTrip(*http.Request) (*http.Response, error) { return nil, rt.err }
 
 // gzipReader wraps a response body so it can lazily
@@ -2634,9 +2606,7 @@ func (t *Transport) getBodyWriterState(cs *clientStream, body io.Reader) (s body
 
 func (s bodyWriterState) cancel() {
 	if s.timer != nil {
-		if s.timer.Stop() {
-			s.resc <- nil
-		}
+		s.timer.Stop()
 	}
 }
 

@@ -51,6 +51,10 @@ type responseLogger struct {
 	size   int
 }
 
+func (l *responseLogger) Header() http.Header {
+	return l.w.Header()
+}
+
 func (l *responseLogger) Write(b []byte) (int, error) {
 	size, err := l.w.Write(b)
 	l.size += size
@@ -70,14 +74,37 @@ func (l *responseLogger) Size() int {
 	return l.size
 }
 
-func (l *responseLogger) Hijack() (net.Conn, *bufio.ReadWriter, error) {
-	conn, rw, err := l.w.(http.Hijacker).Hijack()
-	if err == nil && l.status == 0 {
+func (l *responseLogger) Flush() {
+	f, ok := l.w.(http.Flusher)
+	if ok {
+		f.Flush()
+	}
+}
+
+type hijackLogger struct {
+	responseLogger
+}
+
+func (l *hijackLogger) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	h := l.responseLogger.w.(http.Hijacker)
+	conn, rw, err := h.Hijack()
+	if err == nil && l.responseLogger.status == 0 {
 		// The status will be StatusSwitchingProtocols if there was no error and
 		// WriteHeader has not been called yet
-		l.status = http.StatusSwitchingProtocols
+		l.responseLogger.status = http.StatusSwitchingProtocols
 	}
 	return conn, rw, err
+}
+
+type closeNotifyWriter struct {
+	loggingResponseWriter
+	http.CloseNotifier
+}
+
+type hijackCloseNotifier struct {
+	loggingResponseWriter
+	http.Hijacker
+	http.CloseNotifier
 }
 
 // isContentType validates the Content-Type header matches the supplied

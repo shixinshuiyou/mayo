@@ -3,19 +3,23 @@ package router
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/shixinshuiyou/mayo/app/user/handler"
+	"github.com/shixinshuiyou/mayo/config"
 )
 
 func Register() *gin.Engine {
-	r := gin.Default()
+	srvName := config.SrvActionName
+	r := gin.New()
+	r.Use(gin.Recovery())
 	// r.Use(metric.GinMiddleWare(selfConfig.SrvCube))
 	// r.Use(gin2micro.TracerWrapper)
 	r.Use(CorsMiddleware())
 	r.Use(CheckSessionMiddleware())
-	rg := r.Group("action")
-	initCube(rg)
+	rg := r.Group(strings.Split(srvName, ".")[3])
+	initAction(rg)
 	r.NoRoute(func(c *gin.Context) {
 		fmt.Println(c.Request.URL, c.Request.Host, c.Params)
 	})
@@ -28,7 +32,7 @@ func CheckSessionMiddleware() gin.HandlerFunc {
 	}
 }
 
-func initCube(r *gin.RouterGroup) {
+func initAction(r *gin.RouterGroup) {
 	r.GET("log", handler.UserLogin)
 	r.GET("test", handler.KuaiApitest)
 }

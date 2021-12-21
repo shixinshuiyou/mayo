@@ -517,6 +517,7 @@ github.com/nlopes/slack/slackutilsx
 # github.com/olekukonko/tablewriter v0.0.4
 github.com/olekukonko/tablewriter
 # github.com/opentracing/opentracing-go v1.2.0
+## explicit
 github.com/opentracing/opentracing-go
 github.com/opentracing/opentracing-go/ext
 github.com/opentracing/opentracing-go/log

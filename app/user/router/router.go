@@ -8,12 +8,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/shixinshuiyou/mayo/app/user/handler"
 	"github.com/shixinshuiyou/mayo/config"
+	"github.com/shixinshuiyou/mayo/tool/tracer"
 )
 
 func Register() *gin.Engine {
 	srvName := config.SrvActionName
 	r := gin.New()
 	r.Use(gin.Recovery())
+	r.Use(tracer.Jaeger())
 	// r.Use(metric.GinMiddleWare(selfConfig.SrvCube))
 	// r.Use(gin2micro.TracerWrapper)
 	r.Use(CorsMiddleware())

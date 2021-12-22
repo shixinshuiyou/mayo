@@ -9,9 +9,9 @@ import (
 	"github.com/micro/go-plugins/wrapper/trace/opentracing/v2"
 	"github.com/micro/micro/v2/cmd"
 	"github.com/micro/micro/v2/plugin"
-	"github.com/shixinshuiyou/framework/tracer"
 	"github.com/shixinshuiyou/mayo/config"
 	"github.com/shixinshuiyou/mayo/tool/auth"
+	"github.com/shixinshuiyou/mayo/tool/tracer"
 )
 
 func init() {

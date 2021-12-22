@@ -2,7 +2,7 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/shixinshuiyou/framework/log"
+	"github.com/shixinshuiyou/mayo/tool/log"
 )
 
 func UserLogin(ctx *gin.Context) {

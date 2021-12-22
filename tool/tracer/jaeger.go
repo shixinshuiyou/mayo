@@ -1,7 +1,6 @@
 package tracer
 
 import (
-	"context"
 	"io"
 	"time"
 
@@ -40,12 +39,4 @@ func InitJaegerTracer(serviceName, jaegerAddr string) (opentracing.Tracer, io.Cl
 		// config.MaxTagValueLength(65535),
 	)
 	return tracer, closer, err
-}
-
-// CreateChildSpan Creating a (child) Span given an existing (parent) Span
-func CreateChildSpan(serviceName string, ctx context.Context) opentracing.Span {
-	parentSpan := opentracing.SpanFromContext(ctx)
-	childSpan := opentracing.StartSpan(serviceName, opentracing.ChildOf(parentSpan.Context()))
-	defer childSpan.Finish()
-	return childSpan
 }

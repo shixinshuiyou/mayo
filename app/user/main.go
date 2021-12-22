@@ -4,9 +4,9 @@ import (
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-micro/v2/web"
 	"github.com/micro/go-plugins/registry/etcdv3/v2"
-	"github.com/shixinshuiyou/framework/log"
 	"github.com/shixinshuiyou/mayo/app/user/router"
 	"github.com/shixinshuiyou/mayo/config"
+	"github.com/shixinshuiyou/mayo/tool/log"
 )
 
 func main() {

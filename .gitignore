@@ -1,4 +1,4 @@
 .idea/
 .vscode/
 bin/*.bin
-test/*_test.go
+**/*_test.go

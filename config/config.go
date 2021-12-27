@@ -1,5 +1,7 @@
 package config
 
+import "github.com/shixinshuiyou/mayo/tool/config"
+
 const (
 	SrvApiGateAway = "czh.micro.api"
 	SrvActionName  = "czh.micro.api.user"
@@ -11,8 +13,8 @@ var (
 	// Once          sync.Once
 )
 
-// TODO  读取配置文件
+// 读取配置文件
 func init() {
-	JaegerAddress = "127.0.0.1:6831"
-	EtcdAddress = "127.0.0.1:2380"
+	JaegerAddress = config.Conf.Get("jaeger", "address").String("127.0.0.1:6831")
+	EtcdAddress = config.Conf.Get("etcd", "address").String("127.0.0.1:2380")
 }

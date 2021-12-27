@@ -1,0 +1,10 @@
+mysql:
+  address: 127.0.0.1
+  name: root 
+  pass: 123456
+
+jaeger:
+  address: 127.0.0.1:6831
+
+etcd:
+  address: 127.0.0.1:2380

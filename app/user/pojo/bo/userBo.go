@@ -1,7 +1,7 @@
 package bo
 
 type UserRegisterBo struct {
-	Phone      string `form:"phone" binding:"required,phone"`
+	Phone      string `form:"phone" binding:"required,phoneValidator"`
 	Name       string `form:"name" binding:"required"`
 	Icon       string `form:"icon" `
 	BriefIntro string `form:"intro" `

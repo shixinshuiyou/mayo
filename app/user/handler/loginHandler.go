@@ -3,7 +3,6 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/shixinshuiyou/mayo/app/user/pojo/bo"
-	"github.com/shixinshuiyou/mayo/tool/log"
 	"github.com/shixinshuiyou/mayo/tool/resp"
 )
 
@@ -11,8 +10,8 @@ func UserLogin(ctx *gin.Context) {
 	var form bo.UserRegisterBo
 	if err := ctx.ShouldBindQuery(&form); err != nil {
 		resp.FailWithMsg(ctx, err)
+		return
 	}
-	log.Logger.Debugf("======")
 	ctx.AbortWithStatusJSON(0, "login success")
 }
 

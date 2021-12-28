@@ -7,6 +7,7 @@ import (
 	"github.com/shixinshuiyou/mayo/app/user/router"
 	"github.com/shixinshuiyou/mayo/config"
 	"github.com/shixinshuiyou/mayo/tool/log"
+	_ "github.com/shixinshuiyou/mayo/tool/validator"
 )
 
 func main() {

@@ -35,8 +35,9 @@ func CheckSessionMiddleware() gin.HandlerFunc {
 }
 
 func initAction(r *gin.RouterGroup) {
-	r.GET("log", handler.UserLogin)
-	r.GET("test", handler.KuaiApitest)
+	actionGroup := r.Group("action")
+	actionGroup.GET("log", handler.UserLogin)
+	actionGroup.POST("register", handler.UserLogout)
 }
 
 // 跨域问题

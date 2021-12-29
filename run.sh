@@ -33,6 +33,7 @@ else
         -h shixinshuiyou-mayo-${CONFIG_ENV} \
         -e TZ=Asia/Shanghai \
         -e ETCD_ADDR=${ETCD_ADDR} \
+        -e RUN_MODE=${CONFIG_ENV} \
         -v `pwd`:/go/src/mayo \
         -v `pwd`/docker/${CONFIG_ENV}/supervisord.d:/etc/supervisord.d \
         --cap-add=SYS_PTRACE \

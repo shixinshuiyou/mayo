@@ -11,7 +11,7 @@ import (
 	"github.com/shixinshuiyou/mayo/tool/log"
 )
 
-// 采用etcd-conf 作为etcd 配置中心
+// Conf 采用micro-conf 配置中心
 var (
 	Conf config.Config
 )

@@ -3,6 +3,7 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/shixinshuiyou/mayo/app/user/pojo/bo"
+	"github.com/shixinshuiyou/mayo/tool/config"
 	"github.com/shixinshuiyou/mayo/tool/resp"
 )
 
@@ -12,7 +13,8 @@ func UserLogin(ctx *gin.Context) {
 		resp.FailWithMsg(ctx, err)
 		return
 	}
-	ctx.AbortWithStatusJSON(0, "login success")
+	mysql := config.Conf.Get("mysql", "address").String("example")
+	ctx.AbortWithStatusJSON(0, "login success "+mysql)
 }
 
 func UserLogout(ctx *gin.Context) {

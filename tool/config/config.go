@@ -36,10 +36,10 @@ func init() {
 }
 
 func GetConfigFilePath() string {
-	if GetMode() == "dev" {
-		return "/Users/shixinshuiyou/go/mayo/docker/dev/conf.yaml"
-	}
-	return fmt.Sprintf("docker/%s/conf.yaml", GetMode())
+	// if GetMode() == "dev" {
+	// 	return "/Users/shixinshuiyou/go/mayo/docker/dev/conf.yaml"
+	// }
+	return fmt.Sprintf("./docker/%s/conf.yaml", GetMode())
 }
 
 func GetEtcdAddr() []string {

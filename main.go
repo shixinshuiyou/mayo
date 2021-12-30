@@ -35,7 +35,7 @@ func main() {
 	cmd.Init(
 		micro.Name(srvName),
 		micro.Registry(etcdv3.NewRegistry(func(op *registry.Options) {
-			op.Addrs = []string{config.EtcdAddress}
+			op.Addrs = config.EtcdAddress
 		})),
 		micro.WrapHandler(opentracing.NewHandlerWrapper(jaegerTracer)),
 		// micro.WrapHandler(prometheus.NewHandlerWrapper(server.Name(srvName))),

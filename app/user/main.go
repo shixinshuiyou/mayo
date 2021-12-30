@@ -15,7 +15,7 @@ func main() {
 	log.InitLoggerJson(srvName)
 
 	reg := etcdv3.NewRegistry(func(op *registry.Options) {
-		op.Addrs = []string{"127.0.0.1:2380"}
+		op.Addrs = config.EtcdAddress
 	})
 
 	service := web.NewService(

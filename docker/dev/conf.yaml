@@ -1,10 +1,10 @@
 mysql:
-  address: 127.0.0.1
+  address: host.docker.internal
   name: root 
   pass: 123456
 
 jaeger:
-  address: 127.0.0.1:6831
+  address: host.docker.internal:6831
 
 etcd:
-  address: 127.0.0.1:2380
+  address: host.docker.internal:2379

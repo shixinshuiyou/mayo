@@ -9,6 +9,7 @@ import (
 const (
 	SrvApiGateAway = "czh.micro.api"
 	SrvActionName  = "czh.micro.api.user"
+	SrvSnowflakeID = "czh.micro.api.id"
 )
 
 var (

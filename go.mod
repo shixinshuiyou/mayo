@@ -8,6 +8,7 @@ require (
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
 	github.com/go-playground/validator/v10 v10.4.1
 	github.com/go-redis/redis v6.15.9+incompatible
+	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/micro/go-micro/v2 v2.9.1
 	github.com/micro/go-plugins/registry/etcdv3/v2 v2.0.0-20201212203005-87d43a62e4ad
 	github.com/micro/go-plugins/wrapper/trace/opentracing/v2 v2.9.1
@@ -17,6 +18,7 @@ require (
 	github.com/sirupsen/logrus v1.8.1
 	github.com/uber/jaeger-client-go v2.30.0+incompatible
 	github.com/uber/jaeger-lib v2.4.1+incompatible // indirect
+	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect
 )

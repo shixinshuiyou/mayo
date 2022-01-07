@@ -1,4 +1,5 @@
 syntax = "proto3";
+option go_package="./proto;proto";
 package proto;
 
 message SnowIDReq {
@@ -19,9 +20,7 @@ message PraseIDResp {
     int64 Timestamp = 3;
 }
 
-
-
-service Id {
+service ID {
     rpc GetSnowflakeID(SnowIDReq) returns (SnowIDResp);
     rpc ParseSnowflakeID(PraseIDReq) returns (PraseIDResp);
 }

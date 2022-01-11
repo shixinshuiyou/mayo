@@ -3,13 +3,13 @@ package snowflake
 import (
 	"context"
 
-	"github.com/shixinshuiyou/mayo/proto"
+	proto "github.com/shixinshuiyou/mayo/proto/id"
 )
 
 type SnowID struct{}
 
 func (s *SnowID) GetSnowflakeID(ctx context.Context, in *proto.SnowIDReq, out *proto.SnowIDResp) error {
-	out.ID = int64(ID())
+	out.ID = getSnowflakeID()
 	return nil
 }
 
@@ -19,4 +19,10 @@ func (s *SnowID) ParseSnowflakeID(ctx context.Context, in *proto.PraseIDReq, out
 	out.Sequence = int64(sid.Sequence)
 	out.Timestamp = int64(sid.Timestamp)
 	return nil
+}
+
+func getSnowflakeID() int64 {
+	// TODO 获取当前机器IP名称、或者docker名称
+	// 读取当前机器的在数据库表的ID 作为sequence
+	return int64(ID())
 }

@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package="./proto;proto";
+option go_package="./proto/id;proto";
 package proto;
 
 message SnowIDReq {

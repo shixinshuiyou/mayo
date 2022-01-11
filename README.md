@@ -9,3 +9,12 @@
 
 
 ## 首次执行脚本(sh run.sh dev)生成镜像容器
+
+包目录结构：
+-app    : 微服务总包
+-bin    : 编译生成可以执行文件目录
+-config : 代码配置中心
+-docker : docker环境配置
+-proto  : rpc-proto文件
+-srv    : rpc-service 
+-tool   : 自开发工具包，后续牵出

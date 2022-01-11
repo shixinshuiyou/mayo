@@ -5,8 +5,9 @@ import (
 	"github.com/micro/go-micro/v2/server"
 	"github.com/micro/go-micro/v2/web"
 	"github.com/micro/go-plugins/registry/etcdv3/v2"
+	"github.com/shixinshuiyou/mayo/app/id/snowflake"
 	"github.com/shixinshuiyou/mayo/config"
-	"github.com/shixinshuiyou/mayo/proto"
+	proto "github.com/shixinshuiyou/mayo/proto/id"
 	"github.com/shixinshuiyou/mayo/tool/log"
 )
 
@@ -24,7 +25,7 @@ func main() {
 	)
 
 	service.Init()
-	proto.RegisterIDHandler(server.NewServer(), nil)
+	proto.RegisterIDHandler(server.NewServer(), new(snowflake.SnowID))
 
 	// Run server
 	if err := service.Run(); err != nil {

@@ -44,6 +44,6 @@ else
         -d \
         -p 9081-9090:9081-9090 \
         ${DOCKER_IMAGE} \
-        supervisord -n && docker exec shixinshuiyou-mayo-${CONFIG_ENV} /bin/bash './docker_build.sh'
+        supervisord -n && docker exec shixinshuiyou-mayo-${CONFIG_ENV} /bin/bash './reload.sh'
 
 fi

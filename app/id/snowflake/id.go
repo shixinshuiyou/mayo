@@ -4,12 +4,14 @@ import (
 	"context"
 
 	proto "github.com/shixinshuiyou/mayo/proto/id"
+	"github.com/shixinshuiyou/mayo/tool/log"
 )
 
 type SnowID struct{}
 
 func (s *SnowID) GetSnowflakeID(ctx context.Context, in *proto.SnowIDReq, out *proto.SnowIDResp) error {
 	out.ID = getSnowflakeID()
+	log.Logger.Debugf("snowflake ID is %d", out.ID)
 	return nil
 }
 

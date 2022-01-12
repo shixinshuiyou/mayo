@@ -1,6 +1,6 @@
 syntax = "proto3";
-option go_package="./proto/id;proto";
-package proto;
+option go_package="proto/id;proto";
+package czh.micro.srv.id;
 
 message SnowIDReq {
 

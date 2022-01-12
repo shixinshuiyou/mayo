@@ -1,13 +1,12 @@
 package main
 
 import (
+	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/registry"
-	"github.com/micro/go-micro/v2/server"
-	"github.com/micro/go-micro/v2/web"
 	"github.com/micro/go-plugins/registry/etcdv3/v2"
-	"github.com/shixinshuiyou/mayo/app/id/snowflake"
 	"github.com/shixinshuiyou/mayo/config"
 	proto "github.com/shixinshuiyou/mayo/proto/id"
+	"github.com/shixinshuiyou/mayo/srv/id/snowflake"
 	"github.com/shixinshuiyou/mayo/tool/log"
 )
 
@@ -19,13 +18,13 @@ func main() {
 		op.Addrs = config.EtcdAddress
 	})
 
-	service := web.NewService(
-		web.Name(srvName),
-		web.Registry(reg),
+	service := micro.NewService(
+		micro.Name(srvName),
+		micro.Registry(reg),
 	)
 
 	service.Init()
-	proto.RegisterIDHandler(server.NewServer(), new(snowflake.SnowID))
+	proto.RegisterIDHandler(service.Server(), new(snowflake.SnowID))
 
 	// Run server
 	if err := service.Run(); err != nil {

@@ -9,4 +9,4 @@ echo "build user"
 go build -o /go/src/mayo/bin/user.bin /go/src/mayo/app/user/main.go
 
 echo "build id"
-go build -o /go/src/mayo/bin/id.bin /go/src/mayo/app/id/main.go
+go build -o /go/src/mayo/bin/id.bin /go/src/mayo/srv/id/main.go

@@ -11,10 +11,12 @@ import (
 	"github.com/micro/micro/v2/plugin"
 	"github.com/shixinshuiyou/mayo/config"
 	"github.com/shixinshuiyou/mayo/tool/auth"
+	"github.com/shixinshuiyou/mayo/tool/hystrix"
 	"github.com/shixinshuiyou/mayo/tool/tracer"
 )
 
 func init() {
+	// 用户鉴权
 	plugin.Register(plugin.NewPlugin(
 		plugin.WithName("auth"),
 		plugin.WithHandler(auth.APiGatewayAuth),
@@ -24,6 +26,12 @@ func init() {
 	// 	plugin.WithName("metrics"),
 	// 	plugin.WithHandler()
 	// ))
+
+	// 配置断路器
+	plugin.Register(plugin.NewPlugin(
+		plugin.WithName("hystrix"),
+		plugin.WithHandler(hystrix.HystrixHandler),
+	))
 }
 
 func main() {

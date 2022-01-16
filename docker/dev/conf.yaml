@@ -8,3 +8,8 @@ jaeger:
 
 etcd:
   address: host.docker.internal:2379
+
+redis:
+  address: host.docker.internal:6379
+  password: 
+  maxconnage: 20

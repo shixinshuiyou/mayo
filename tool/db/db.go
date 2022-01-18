@@ -12,24 +12,25 @@ import (
 var dbMap = map[string]*gorm.DB{}
 
 type dbInfo struct {
-	CardName string
+	CardName string // 数据连接别名、用于在配置文件中区分
 	UserName string
 	PassWord string
 	Protocol string
 	Host     string
 	Port     int
-	DBName   string
+	DBName   string //数据库名称
 	Charset  string
 }
 
 func getDBInfo(dbCard string) *dbInfo {
 	return &dbInfo{
 		CardName: dbCard,
-		UserName: config.Conf.Get(dbCard, "user").String("wx_minipro_cards"),
-		PassWord: config.Conf.Get(dbCard, "password").String("7d0fd08e01d35b1b"),
+		UserName: config.Conf.Get(dbCard, "username").String("root"),
+		PassWord: config.Conf.Get(dbCard, "password").String("123456"),
 		Protocol: config.Conf.Get(dbCard, "protocol").String("tcp"),
 		Host:     config.Conf.Get(dbCard, "host").String("127.0.0.1"),
 		Port:     config.Conf.Get(dbCard, "port").Int(6379),
+		DBName:   config.Conf.Get(dbCard, "dbname").String("test"),
 		Charset:  config.Conf.Get(dbCard, "charset").String("utf8"),
 	}
 }

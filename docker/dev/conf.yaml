@@ -1,7 +1,11 @@
-mysql:
-  address: host.docker.internal
-  name: root 
-  pass: 123456
+dbmayo:
+  username: root 
+  password: 123456
+  protocol: tcp
+  host: host.docker.internal
+  port: 3306
+  dbname: mayo
+  charset: utf8
 
 jaeger:
   address: host.docker.internal:6831
@@ -9,7 +13,8 @@ jaeger:
 etcd:
   address: host.docker.internal:2379
 
-redis:
-  address: host.docker.internal:6379
-  password: 
+redis-cli:
+  host: host.docker.internal
+  port: 6379
+  password: czh
   maxconnage: 20

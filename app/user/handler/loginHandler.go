@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
+	"github.com/shixinshuiyou/mayo/app/user/cache"
 	"github.com/shixinshuiyou/mayo/app/user/pojo/bo"
 	"github.com/shixinshuiyou/mayo/srv"
-	"github.com/shixinshuiyou/mayo/tool/config"
 	"github.com/shixinshuiyou/mayo/tool/resp"
 )
 
@@ -16,8 +16,8 @@ func UserLogin(ctx *gin.Context) {
 		resp.FailWithMsg(ctx, err)
 		return
 	}
-	mysql := config.Conf.Get("mysql", "address").String("example")
-	ctx.AbortWithStatusJSON(0, "login success "+mysql)
+
+	ctx.AbortWithStatusJSON(0, "login success "+cache.GetMysqlCache())
 }
 
 func UserLogout(ctx *gin.Context) {

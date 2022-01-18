@@ -1,6 +1,7 @@
-package cache
+package redis
 
 import (
+	"fmt"
 	"sync"
 	"time"
 
@@ -16,7 +17,9 @@ var (
 )
 
 func init() {
-	addr := config.Conf.Get("redis", "address").String("127.0.0.1:6379")
+	host := config.Conf.Get("redis-cli", "host").String("127.0.0.1")
+	port := config.Conf.Get("redis-cli", "port").Int(6379)
+	addr := fmt.Sprintf("%s:%d", host, port)
 	log.Logger.Debugf("redis session connt addr :%s", addr)
 	option = &redis.Options{
 		Addr:       addr,
@@ -36,9 +39,4 @@ func getInstance() *redis.Client {
 
 func GetInstance() *redis.Client {
 	return getInstance()
-}
-
-// TODO
-func InitRedisConf(op *redis.Options) {
-	option = op
 }

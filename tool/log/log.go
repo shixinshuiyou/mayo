@@ -4,6 +4,8 @@ import (
 	"io/ioutil"
 	sys "log/syslog"
 	"os"
+	"path"
+	"runtime"
 
 	"github.com/sirupsen/logrus"
 	"github.com/sirupsen/logrus/hooks/syslog"
@@ -22,8 +24,15 @@ func init() {
 
 func InitLoggerJson(tag string) {
 	logAddr := ""
-	runEnv := os.Getenv("run_env")
-	logrus.SetFormatter(&logrus.JSONFormatter{})
+	runEnv := GetRunMode()
+	logrus.SetReportCaller(true) // 输出文件名，行号和函数名
+	logrus.SetFormatter(&logrus.JSONFormatter{
+		TimestampFormat: "2006-01-02 15:03:04",
+		CallerPrettyfier: func(f *runtime.Frame) (function string, file string) {
+			fileName := path.Base(f.File)
+			return f.Function, fileName
+		},
+	})
 	Logger = logrus.WithFields(logrus.Fields{
 		"env": runEnv,
 	})
@@ -39,8 +48,11 @@ func InitLoggerJson(tag string) {
 }
 
 func InitLoggerText() {
-	runEnv := os.Getenv("run_env")
-	logrus.SetFormatter(&logrus.TextFormatter{})
+	runEnv := GetRunMode()
+	logrus.SetReportCaller(true) // 输出文件名，行号和函数名
+	logrus.SetFormatter(&logrus.TextFormatter{
+		TimestampFormat: "2006-01-02 15:03:04",
+	})
 	Logger = logrus.WithField("env", runEnv)
 	if runEnv == ENV_PROD {
 		// 关闭标准日志输出
@@ -49,4 +61,8 @@ func InitLoggerText() {
 	} else {
 		logrus.SetLevel(logrus.DebugLevel)
 	}
+}
+
+func GetRunMode() string {
+	return os.Getenv("RUN_MODE")
 }

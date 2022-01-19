@@ -6,15 +6,14 @@ import (
 	"strings"
 
 	"github.com/micro/go-micro/v2/config"
-	"github.com/micro/go-micro/v2/config/source/etcd"
 	"github.com/micro/go-micro/v2/config/source/file"
+	"github.com/shixinshuiyou/mayo/tool/config/etcd"
+	"github.com/shixinshuiyou/mayo/tool/log"
 )
 
 var (
 	// Conf 采用micro-conf 配置中心
 	Conf config.Config
-
-	defaultPrefix = "/mayo/config"
 )
 
 func init() {
@@ -26,24 +25,28 @@ func init() {
 		file.NewSource(file.WithPath(GetConfigFilePath())),
 		etcd.NewSource(
 			etcd.WithAddress(GetEtcdAddr()...),
-			etcd.WithPrefix(defaultPrefix),
 			etcd.StripPrefix(true),
 		),
 	)
-
 	Conf.Sync()
-
 }
 
 func GetConfigFilePath() string {
 	// if GetMode() == "dev" {
 	// 	return "/Users/shixinshuiyou/go/mayo/docker/dev/conf.yaml"
 	// }
-	return fmt.Sprintf("./docker/%s/conf.yaml", GetMode())
+	fileAddr := fmt.Sprintf("./docker/%s/conf.yaml", GetMode())
+
+	log.Logger.Debugf("conf init file addr : %s", fileAddr)
+	return fileAddr
 }
 
 func GetEtcdAddr() []string {
 	addr := os.Getenv("ETCD_ADDR")
+	if addr == "" {
+		return []string{"127.0.0.1:2379"}
+	}
+	log.Logger.Debugf("conf init etcd addr : %s", addr)
 	return strings.Split(addr, ",")
 }
 

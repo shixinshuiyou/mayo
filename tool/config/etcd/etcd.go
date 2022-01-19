@@ -21,7 +21,7 @@ type etcd struct {
 }
 
 var (
-	// 为了不影响原先的代码，对prefix做了区分
+	// 为了不影响原先的micro框架，对prefix最好作出区分
 	DefaultPrefix = "/micro/config/"
 )
 
@@ -77,7 +77,6 @@ func (c *etcd) Watch() (source.Watcher, error) {
 	return newWatcher(c.prefix, c.stripPrefix, c.client.Watcher, cs, c.opts)
 }
 
-// 这个方法是补充的，升级v2后接口增加了这个方法
 func (c *etcd) Write(cs *source.ChangeSet) error {
 	return nil
 }

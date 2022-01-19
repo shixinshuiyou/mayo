@@ -56,7 +56,7 @@ func update(e encoder.Encoder, data map[string]interface{}, v *mvccpb.KeyValue, 
 		case "delete":
 			data = make(map[string]interface{})
 		default:
-			// fix-bug 这部分对key进行合并原先只有最后一个key有效
+			// fix-bug 这部分对key进行合并，原先只有最后一个key有效
 			if v, ok := vals.(map[string]interface{}); ok {
 				data[keys[0]] = v
 			}

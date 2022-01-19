@@ -43,7 +43,7 @@ func (c *etcd) Read() (*source.ChangeSet, error) {
 	for _, v := range rsp.Kvs {
 		kvs = append(kvs, (*mvccpb.KeyValue)(v))
 	}
-
+	// 重写下层方法 fix-原先只有最后一个key有效
 	data := makeMap(c.opts.Encoder, kvs, c.stripPrefix)
 
 	b, err := c.opts.Encoder.Encode(data)

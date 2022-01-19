@@ -49,3 +49,5 @@ conf := config.NewConfig()
 // Load file source
 conf.Load(etcdSource)
 ```
+## 备注
+此处重写github.com/micro/go-micro/v2/config/source/etcd Read()方法下

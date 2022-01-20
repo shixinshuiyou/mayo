@@ -16,14 +16,21 @@ var (
 	option *redis.Options
 )
 
+type redisConf struct {
+	Host     string
+	Port     int
+	Password string
+}
+
 func init() {
-	host := config.Conf.Get("redis-cli", "host").String("127.0.0.1")
-	port := config.Conf.Get("redis-cli", "port").Int(6379)
-	addr := fmt.Sprintf("%s:%d", host, port)
-	log.Logger.Debugf("redis session connt addr :%s", addr)
+	conf := new(redisConf)
+	config.Conf.Get("redis-cli").Scan(conf)
+
+	addr := fmt.Sprintf("%s:%d", conf.Host, conf.Port)
+	log.Logger.Debugf("redis session connt addr :%s-%s,", addr, conf.Password)
 	option = &redis.Options{
 		Addr:       addr,
-		Password:   config.Conf.Get("redis", "password").String(""),
+		Password:   conf.Password,
 		DB:         0,
 		MaxConnAge: time.Duration(config.Conf.Get("redis", "maxconnage").Int(10)) * time.Second,
 	}

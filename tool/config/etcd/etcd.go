@@ -22,7 +22,7 @@ type etcd struct {
 
 var (
 	// 为了不影响原先的micro框架，对prefix最好作出区分
-	DefaultPrefix = "/micro/config/"
+	DefaultPrefix = "/micro/mayo/"
 )
 
 func (c *etcd) Read() (*source.ChangeSet, error) {

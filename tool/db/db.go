@@ -22,17 +22,13 @@ type dbInfo struct {
 	Charset  string
 }
 
-func getDBInfo(dbCard string) *dbInfo {
-	return &dbInfo{
-		CardName: dbCard,
-		UserName: config.Conf.Get(dbCard, "username").String("root"),
-		PassWord: config.Conf.Get(dbCard, "password").String("123456"),
-		Protocol: config.Conf.Get(dbCard, "protocol").String("tcp"),
-		Host:     config.Conf.Get(dbCard, "host").String("127.0.0.1"),
-		Port:     config.Conf.Get(dbCard, "port").Int(6379),
-		DBName:   config.Conf.Get(dbCard, "dbname").String("test"),
-		Charset:  config.Conf.Get(dbCard, "charset").String("utf8"),
+func getDBInfo(dbCard string) (db *dbInfo) {
+	err := config.Conf.Get(dbCard).Scan(db)
+	if err != nil {
+		log.Logger.Panicf("init %s db conn error:%s", dbCard, err)
 	}
+	db.CardName = dbCard
+	return
 }
 
 func (db *dbInfo) dsn() string {

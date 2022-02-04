@@ -1,8 +1,6 @@
 package tracer
 
 import (
-	"context"
-
 	"github.com/gin-gonic/gin"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
@@ -25,12 +23,17 @@ func Jaeger(srvName, jaegerAddress string) gin.HandlerFunc {
 				opentracing.ChildOf(spCtx),
 				opentracing.Tag{Key: string(ext.Component), Value: "HTTP"},
 				ext.SpanKindRPCServer,
+				ext.RPCServerOption(spCtx),
 			)
 			defer curSpan.Finish()
 		}
 		// 然后存到 g.ctx 中 供后续使用
-		c.Set("tracer", jaegerTracer)
-		c.Set("ctx", opentracing.ContextWithSpan(context.Background(), curSpan))
+		ext.SpanKindRPCClient.Set(curSpan)
+		ext.HTTPUrl.Set(curSpan, c.Request.RequestURI)
+		ext.HTTPMethod.Set(curSpan, c.Request.Method)
+		jaegerTracer.Inject(curSpan.Context(), opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(c.Request.Header))
+
 		c.Next()
+
 	}
 }

@@ -7,12 +7,16 @@ import (
 	"github.com/shixinshuiyou/mayo/app/user/router"
 	"github.com/shixinshuiyou/mayo/config"
 	"github.com/shixinshuiyou/mayo/tool/log"
+	"github.com/shixinshuiyou/mayo/tool/tracer"
 	_ "github.com/shixinshuiyou/mayo/tool/validator"
 )
 
 func main() {
 	srvName := config.SrvActionName
 	log.InitLoggerJson(srvName)
+
+	_, closer, _ := tracer.SetJaegerGlobalTracer(srvName, config.JaegerAddress)
+	defer closer.Close()
 
 	reg := etcdv3.NewRegistry(func(op *registry.Options) {
 		op.Addrs = config.EtcdAddress

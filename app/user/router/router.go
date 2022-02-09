@@ -15,7 +15,7 @@ func Register() *gin.Engine {
 	srvName := config.SrvActionName
 	r := gin.New()
 	r.Use(gin.Recovery())
-	r.Use(tracer.Jaeger(srvName, config.JaegerAddress))
+	r.Use(tracer.Jaeger(srvName))
 	// r.Use(metric.GinMiddleWare(selfConfig.SrvCube))
 	// r.Use(gin2micro.TracerWrapper)
 	r.Use(CorsMiddleware())

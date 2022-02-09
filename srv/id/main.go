@@ -4,7 +4,6 @@ import (
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-plugins/registry/etcdv3/v2"
-	"github.com/micro/go-plugins/wrapper/trace/opentracing/v2"
 	"github.com/shixinshuiyou/mayo/config"
 	proto "github.com/shixinshuiyou/mayo/proto/id"
 	"github.com/shixinshuiyou/mayo/srv/id/snowflake"
@@ -26,8 +25,7 @@ func main() {
 	service := micro.NewService(
 		micro.Name(srvName),
 		micro.Registry(reg),
-		// micro.WrapClient(opentracing.NewClientWrapper(jaegerTracer)),
-		micro.WrapHandler(opentracing.NewHandlerWrapper(jaegerTracer)),
+		micro.WrapHandler(tracer.NewHandlerWrapper(jaegerTracer)),
 	)
 
 	service.Init()

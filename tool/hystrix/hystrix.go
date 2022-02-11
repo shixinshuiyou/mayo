@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/afex/hystrix-go/hystrix"
+	"github.com/shixinshuiyou/mayo/tool/resp"
 )
 
 func HystrixHandler(h http.Handler) http.Handler {
@@ -19,7 +20,10 @@ func HystrixHandler(h http.Handler) http.Handler {
 		hystrix.ConfigureCommand(name, config)
 
 		hystrix.Do(name, func() error {
-			hw := HystrixResponse{w, http.StatusOK, false}
+			hw := resp.ResponseStatusWriter{
+				RW:         w,
+				StatusCode: http.StatusOK,
+			}
 			h.ServeHTTP(&hw, r)
 			return nil
 		}, nil)

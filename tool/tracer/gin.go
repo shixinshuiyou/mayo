@@ -12,7 +12,7 @@ func Jaeger(srvName string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var span opentracing.Span
 
-		log.Logger.Debugf("http header carry is %s", opentracing.HTTPHeadersCarrier(ctx.Request.Header))
+		log.JaegerLogger(ctx).Debugf("http header carry is %s", opentracing.HTTPHeadersCarrier(ctx.Request.Header))
 		// 直接从 c.Request.Header 中提取 span,如果没有就新建一个
 		span, _ = opentracing.StartSpanFromContext(ctx, ctx.Request.URL.Path, opentracing.Tag{Key: string(ext.Component), Value: "HTTP"})
 		defer span.Finish()

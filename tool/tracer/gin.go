@@ -11,16 +11,18 @@ import (
 func Jaeger(srvName string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var span opentracing.Span
-
-		log.JaegerLogger(ctx).Debugf("http header carry is %s", opentracing.HTTPHeadersCarrier(ctx.Request.Header))
 		// 直接从 c.Request.Header 中提取 span,如果没有就新建一个
-		span, _ = opentracing.StartSpanFromContext(ctx, ctx.Request.URL.Path, opentracing.Tag{Key: string(ext.Component), Value: "HTTP"})
+		spanCtx, _ := opentracing.GlobalTracer().Extract(opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(ctx.Request.Header))
+		span = opentracing.StartSpan(ctx.Request.URL.Path, ext.RPCServerOption(spanCtx))
+		// span, _ = opentracing.StartSpanFromContext(ctx, ctx.Request.URL.Path, opentracing.Tag{Key: string(ext.Component), Value: "HTTP"})
 		defer span.Finish()
+		log.SpanLogger(span).Debug()
 
 		// 然后存到 g.ctx 中 供后续使用
 		ext.SpanKindRPCClient.Set(span)
 		ext.HTTPUrl.Set(span, ctx.Request.RequestURI)
 		ext.HTTPMethod.Set(span, ctx.Request.Method)
+
 		span.Tracer().Inject(span.Context(), opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(ctx.Request.Header))
 
 		ctx.Next()

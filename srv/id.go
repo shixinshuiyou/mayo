@@ -3,17 +3,19 @@ package srv
 import (
 	"context"
 
+	"github.com/gin-gonic/gin"
 	proto "github.com/shixinshuiyou/mayo/proto/id"
 	"github.com/shixinshuiyou/mayo/tool/log"
+	"github.com/shixinshuiyou/mayo/tool/tracer"
 )
 
 type SnowID struct {
-	TraceContext context.Context
+	TraceContext context.Context // 需要携带TraceID
 }
 
-func NewIDSrv(ctx context.Context) (sid *SnowID) {
+func NewIDSrv(ctx *gin.Context) (sid *SnowID) {
 	sid = new(SnowID)
-	sid.TraceContext = ctx
+	sid.TraceContext = tracer.ContextWithTraceID(ctx)
 	return
 }
 

@@ -1,13 +1,24 @@
 package tracer
 
 import (
+	"context"
 	"io"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/opentracing/opentracing-go"
+	mylog "github.com/shixinshuiyou/mayo/tool/log"
 	"github.com/uber/jaeger-client-go"
 	"github.com/uber/jaeger-client-go/config"
 	"github.com/uber/jaeger-client-go/log"
+)
+
+type contextKey struct{}
+
+var (
+	contextTracerKey = contextKey{}
+	uberTrace        = "Uber-Trace-Id"
+	traceId          = "trace-id"
 )
 
 // InitJaegerTracer 返回 Jaeger Tracer
@@ -50,4 +61,29 @@ func SetJaegerGlobalTracer(serviceName, jaegerAddr string) (opentracing.Tracer, 
 	}
 	opentracing.SetGlobalTracer(tracer)
 	return tracer, closer, err
+}
+
+// ContextWithTraceID  context 携带 traceID
+func ContextWithTraceID(c *gin.Context) (ctx context.Context) {
+	md := make(map[string]string)
+	id, _ := c.Get(traceId)
+	md[uberTrace] = id.(string)
+	ctx = context.WithValue(c, contextTracerKey, md)
+	return ctx
+}
+
+// 获取Context中携带的traceID
+func ContextGetTraceID(c context.Context) map[string]string {
+	val := c.Value(contextTracerKey)
+	mylog.Logger.Debugf("context with values is:%v", val)
+	md, ok := val.(map[string]string)
+	if ok {
+		return md
+	}
+	return make(map[string]string)
+}
+
+func getSpanTraceID(sp opentracing.Span) string {
+	sc, _ := sp.Context().(jaeger.SpanContext)
+	return sc.TraceID().String()
 }

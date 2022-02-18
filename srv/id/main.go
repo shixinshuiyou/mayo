@@ -15,7 +15,7 @@ func main() {
 	srvName := config.SrvSnowflakeID
 	log.InitLoggerJson(srvName)
 
-	jaegerTracer, closer, _ := tracer.InitJaegerTracer(srvName, config.JaegerAddress)
+	_, closer, _ := tracer.SetJaegerGlobalTracer(srvName, config.JaegerAddress)
 	defer closer.Close()
 
 	reg := etcdv3.NewRegistry(func(op *registry.Options) {
@@ -25,7 +25,7 @@ func main() {
 	service := micro.NewService(
 		micro.Name(srvName),
 		micro.Registry(reg),
-		micro.WrapHandler(tracer.NewHandlerWrapper(jaegerTracer)),
+		micro.WrapHandler(tracer.NewHandlerWrapper()),
 	)
 
 	service.Init()

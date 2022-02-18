@@ -23,13 +23,14 @@ func TracerWrapper(h http.Handler) http.Handler {
 			log.SpanLogger(sp).Errorf("inject tracer span error : %s", err.Error())
 		}
 
+		log.SpanLogger(sp).Debugf("after inject req header :%v", r.Header)
+
 		// 重写http ResponseWriter 方法从而获取执行结果的状态吗
 		rsw := resp.ResponseStatusWriter{
 			RW:         w,
 			StatusCode: http.StatusOK,
 		}
 		h.ServeHTTP(&rsw, r)
-		log.SpanLogger(sp).Debugf("执行结果是:%d", rsw.StatusCode)
 
 		ext.HTTPMethod.Set(sp, r.Method)
 		ext.HTTPUrl.Set(sp, r.URL.EscapedPath())

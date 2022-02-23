@@ -16,6 +16,7 @@ func NewHandlerWrapper() server.HandlerWrapper {
 		return func(ctx context.Context, req server.Request, rsp interface{}) (err error) {
 			err = h(ctx, req, rsp)
 			// 获取context携带的值
+			// TODO 此处的ctx 不是请求处ctx
 			md := ContextGetTraceID(ctx)
 			name := fmt.Sprintf("%s.%s", req.Service(), req.Endpoint())
 			var span opentracing.Span

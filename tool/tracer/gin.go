@@ -17,16 +17,12 @@ func Jaeger(srvName string) gin.HandlerFunc {
 		span = opentracing.StartSpan(ctx.Request.URL.Path, opentracing.ChildOf(spanCtx))
 
 		defer span.Finish()
-
-		// traceID 然后存到 g.ctx 中 供后续使用
-		ctx.Set(traceId, getSpanTraceID(span))
-
 		ctx.Next()
 
 		ext.HTTPStatusCode.Set(span, uint16(ctx.Writer.Status()))
 		ext.HTTPUrl.Set(span, ctx.Request.URL.EscapedPath())
 		ext.HTTPMethod.Set(span, ctx.Request.Method)
-
+		// 把tracer 写入到context中
 		span.Tracer().Inject(span.Context(), opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(ctx.Request.Header))
 		log.SpanLogger(span).Debugf("after inject req header :%v", ctx.Request.Header)
 	}

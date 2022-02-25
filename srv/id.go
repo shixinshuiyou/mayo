@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 	proto "github.com/shixinshuiyou/mayo/proto/id"
 	"github.com/shixinshuiyou/mayo/tool/log"
-	"github.com/shixinshuiyou/mayo/tool/tracer"
 )
 
 type SnowID struct {
@@ -15,7 +14,7 @@ type SnowID struct {
 
 func NewIDSrv(ctx *gin.Context) (sid *SnowID) {
 	sid = new(SnowID)
-	sid.TraceContext = tracer.ContextWithTraceID(ctx)
+	sid.TraceContext = ctx
 	return
 }
 

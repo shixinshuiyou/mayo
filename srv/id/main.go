@@ -19,7 +19,7 @@ func main() {
 	defer closer.Close()
 
 	reg := etcdv3.NewRegistry(func(op *registry.Options) {
-		op.Addrs = []string{"127.0.0.1:2379"}
+		op.Addrs = config.EtcdAddress
 	})
 
 	service := micro.NewService(

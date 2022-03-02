@@ -19,7 +19,7 @@ func NewIDSrv(ctx *gin.Context) (sid *SnowID) {
 }
 
 func (sid *SnowID) GetSnowflakeID() (int64, error) {
-	resp, err := idService.GetSnowflakeID(sid.TraceContext, &proto.SnowIDReq{})
+	resp, err := GetIDService(sid.TraceContext).GetSnowflakeID(sid.TraceContext, &proto.SnowIDReq{})
 	if err != nil {
 		log.Logger.Errorf("get snowflakeID err:%s", err)
 	}

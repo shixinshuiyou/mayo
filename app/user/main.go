@@ -6,6 +6,7 @@ import (
 	"github.com/micro/go-plugins/registry/etcdv3/v2"
 	"github.com/shixinshuiyou/mayo/app/user/router"
 	"github.com/shixinshuiyou/mayo/config"
+	"github.com/shixinshuiyou/mayo/srv"
 	"github.com/shixinshuiyou/mayo/tool/log"
 	"github.com/shixinshuiyou/mayo/tool/tracer"
 	_ "github.com/shixinshuiyou/mayo/tool/validator"
@@ -31,6 +32,9 @@ func main() {
 	if err := service.Init(); err != nil {
 		log.Logger.Errorf("servce(%s) init error:%s", srvName, err)
 	}
+
+	// 初始化RPC 服务client
+	srv.InitProtoService(service.Options().Service.Client())
 
 	r := router.Register()
 	r.HandleMethodNotAllowed = true

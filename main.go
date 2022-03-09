@@ -21,11 +21,6 @@ func init() {
 		plugin.WithHandler(auth.APiGatewayAuth),
 	))
 
-	// plugin.Register(plugin.NewPlugin(
-	// 	plugin.WithName("metrics"),
-	// 	plugin.WithHandler()
-	// ))
-
 	// 配置断路器
 	plugin.Register(plugin.NewPlugin(
 		plugin.WithName("hystrix"),
@@ -51,16 +46,4 @@ func main() {
 		micro.RegisterTTL(time.Second*30),
 		micro.RegisterInterval(time.Second*10),
 	)
-
 }
-
-// func PrometheusBoot() {
-// 	http.Handle("/metrics", promhttp.Handler())
-// 	// Start the web service and listen to port 8085
-// 	go func() {
-// 		err := http.ListenAndServe("localhost:9085", nil)
-// 		if err != nil {
-// 			log.Fatal("ListenAndServe: ", err)
-// 		}
-// 	}()
-// }

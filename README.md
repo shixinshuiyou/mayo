@@ -14,7 +14,8 @@
 
 ## 启动
 
-    首次执行脚本(sh run.sh dev)生成镜像容器
+    生成镜像（docker build -f docker/base.dockerfile -t shixinshuiyou/mayo:dev .）
+    执行脚本(sh run.sh dev)生成镜像容器
     重新编译:容器根目录内 sh reload.sh
 
 ## 包目录结构

@@ -30,4 +30,5 @@ require (
 replace (
 	github.com/cloudflare/cloudflare-go => github.com/cloudflare/cloudflare-go v0.10.2
 	google.golang.org/grpc => google.golang.org/grpc v1.26.0
+	github.com/dgrijalva/jwt-go => github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
 )

@@ -23,12 +23,12 @@ require (
 	google.golang.org/protobuf v1.27.1
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect
-	gorm.io/driver/mysql v1.2.3
-	gorm.io/gorm v1.22.5
+	gorm.io/driver/mysql v1.3.2
+	gorm.io/gorm v1.23.1
 )
 
 replace (
 	github.com/cloudflare/cloudflare-go => github.com/cloudflare/cloudflare-go v0.10.2
-	google.golang.org/grpc => google.golang.org/grpc v1.26.0
 	github.com/dgrijalva/jwt-go => github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
+	google.golang.org/grpc => google.golang.org/grpc v1.26.0
 )

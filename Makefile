@@ -1,4 +1,6 @@
-.PHONY: run gateway user id
+GOPATH:=$(shell go env GOPATH)
+
+.PHONY: run gateway user id proto
 build-images:
 	docker build -f docker/base.dockerfile -t shixinshuiyou/mayo:${v} .
 run:
@@ -9,3 +11,5 @@ user:
 	go run app/user/main.go
 id:
 	go run srv/id/main.go
+proto:
+	protoc --proto_path=${GOPATH}/src:. --micro_out=. --go_out=. proto/id/snowflake.proto

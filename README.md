@@ -33,3 +33,4 @@
     go-micro-api文章 <https://zhuanlan.zhihu.com/p/252824566>
     jaeger文章 <https://kebingzao.com/2020/12/25/jaeger-use/>
     opentracing介绍 https://xiaoming.net.cn/2021/03/25/Opentracing%E6%A0%87%E5%87%86%E5%92%8CJaeger%E5%AE%9E%E7%8E%B0/
+    go-micro v2升级v3 https://micro.dev/v2-to-v3-upgrade-guide
